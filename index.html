@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>熊大銀行 - 線上數位開戶</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 LINE LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
         
@@ -157,12 +159,27 @@
     </div>
 
     <!-- 自定義訊息盒 -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full text-sm opacity-0 transition-opacity pointer-events-none">
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full text-sm opacity-0 transition-opacity pointer-events-none z-50">
         請同意條款後繼續
     </div>
 
     <script>
         let currentStep = 1;
+        const LIFF_ID = '2008742005-3DHkWzkg'; // 從 URL 提取的 LIFF ID
+
+        // 初始化 LIFF
+        async function initLiff() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                console.log("LIFF 初始化成功");
+            } catch (error) {
+                console.error("LIFF 初始化失敗", error);
+            }
+        }
+
+        window.onload = function() {
+            initLiff();
+        };
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
@@ -172,12 +189,9 @@
         }
 
         function nextStep(step) {
-            // 隱藏當前步驟
             document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
-            // 顯示新步驟
             document.getElementById(`step-${step}`).classList.add('active');
             
-            // 更新進度條
             const progressInner = document.getElementById('progress-inner');
             progressInner.style.width = (step * 20) + '%';
             
@@ -203,20 +217,26 @@
             nextStep(4);
         }
 
-        function startVideoVerify() {
-            // 在實際環境中，開啟 LINE LIFF
-            const liffUrl = 'https://liff.line.me/2008742005-3DHkWzkg';
+        async function startVideoVerify() {
+            const targetUrl = 'https://liff.line.me/2008742005-3DHkWzkg';
             
-            // 模擬開啟連結
-            window.open(liffUrl, '_blank');
+            showToast('正在開啟視訊驗證...');
+
+            // 使用 liff.openWindow 跳轉
+            if (liff.isLoggedIn() || !liff.isInClient()) {
+                liff.openWindow({
+                    url: targetUrl,
+                    external: false // 在 LIFF 瀏覽器內開啟
+                });
+            } else {
+                // 如果沒登入或不在 LINE 內，則嘗試直接跳轉
+                window.location.href = targetUrl;
+            }
             
-            // 模擬驗證完成 (實際應用應由後端回調或 LIFF 關閉後觸發)
-            showToast('導向驗證中...');
-            
-            // 延遲一段時間後自動跳轉到完成頁面，用於展示效果
+            // 模擬驗證完成後的跳轉效果
             setTimeout(() => {
                 nextStep(5);
-            }, 3000);
+            }, 5000);
         }
     </script>
 </body>
