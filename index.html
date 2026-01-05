@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>熊大銀行 - 線上數位開戶</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fdf6e3;
+        }
+
+        .step-container {
+            display: none;
+        }
+
+        .step-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-primary {
+            background-color: #8b4513;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #5d2e0d;
+            transform: scale(1.02);
+        }
+
+        .bear-theme-text {
+            color: #8b4513;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- 主容器 -->
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border-4 border-[#8b4513]">
+        
+        <!-- 頂部進度條 -->
+        <div class="bg-[#8b4513] p-4 text-center">
+            <h1 class="text-white font-bold text-xl">Brown Bank 熊大銀行</h1>
+            <div id="progress-bar" class="w-full bg-yellow-900/30 h-1 mt-3 rounded-full overflow-hidden">
+                <div id="progress-inner" class="bg-yellow-400 h-full transition-all duration-500" style="width: 20%;"></div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            
+            <!-- 步驟 1: 首頁 -->
+            <div id="step-1" class="step-container active text-center">
+                <div class="mb-6 text-6xl">🐻</div>
+                <h2 class="text-2xl font-bold bear-theme-text mb-4">歡迎加入熊大銀行</h2>
+                <p class="text-gray-600 mb-8 leading-relaxed">
+                    只需簡單四個步驟，即可完成您的數位存款帳戶申請，享受極速理財體驗。
+                </p>
+                <button onclick="nextStep(2)" class="w-full py-4 rounded-xl btn-primary font-bold shadow-lg">
+                    立即開始申請
+                </button>
+            </div>
+
+            <!-- 步驟 2: 授權頁面 -->
+            <div id="step-2" class="step-container">
+                <h2 class="text-xl font-bold bear-theme-text mb-4 border-b pb-2">個人資料蒐集條款</h2>
+                <div class="h-48 overflow-y-auto bg-gray-50 p-4 rounded-lg text-sm text-gray-500 mb-6 leading-relaxed">
+                    <p class="mb-2">1. 熊大銀行（以下簡稱本行）為提供開戶服務，需蒐集您的個人識別資料。</p>
+                    <p class="mb-2">2. 您同意本行將您的姓名、電話及生物辨識資訊用於身分核驗。</p>
+                    <p class="mb-2">3. 本行承諾遵循個人資料保護法，確保您的隱私受到最高等級保護。</p>
+                    <p class="mb-2">4. 本申請流程包含視訊驗證環節，請確保在光線充足環境下進行。</p>
+                    <p>5. 您同意跳轉至協力廠商（如 LINE）進行身分串接驗證。</p>
+                </div>
+                <div class="flex items-start mb-6">
+                    <input type="checkbox" id="agree" class="mt-1 mr-3 h-5 w-5 accent-[#8b4513]">
+                    <label for="agree" class="text-sm text-gray-600 cursor-pointer">
+                        我已閱讀並同意上述所有隱私權保護政策與開戶條款。
+                    </label>
+                </div>
+                <button onclick="checkAgreement()" class="w-full py-4 rounded-xl btn-primary font-bold shadow-lg">
+                    同意並繼續
+                </button>
+            </div>
+
+            <!-- 步驟 3: 輸入基本資料 -->
+            <div id="step-3" class="step-container">
+                <h2 class="text-xl font-bold bear-theme-text mb-6">填寫基本資料</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">真實姓名</label>
+                        <input type="text" id="name" placeholder="請輸入姓名" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-[#8b4513] outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">手機號碼</label>
+                        <input type="tel" id="phone" placeholder="09XX-XXX-XXX" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-[#8b4513] outline-none">
+                    </div>
+                </div>
+                <button onclick="validateInfo()" class="w-full py-4 rounded-xl btn-primary font-bold mt-8 shadow-lg">
+                    下一步：視訊驗證
+                </button>
+            </div>
+
+            <!-- 步驟 4: 視訊驗證 -->
+            <div id="step-4" class="step-container text-center">
+                <div class="mb-6 animate-pulse">
+                    <span class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                    </span>
+                </div>
+                <h2 class="text-xl font-bold bear-theme-text mb-4">即將開始視訊身分驗證</h2>
+                <p class="text-gray-600 mb-8">
+                    我們將引導您至 LINE LIFF 系統進行即時人臉與證件驗證。請確保您已安裝 LINE App。
+                </p>
+                <button onclick="startVideoVerify()" class="w-full py-4 rounded-xl bg-[#00B900] text-white font-bold shadow-lg hover:bg-[#009900]">
+                    開啟 LINE 視訊驗證
+                </button>
+                <p class="mt-4 text-xs text-gray-400">完成驗證後，系統將自動返回此頁面</p>
+            </div>
+
+            <!-- 步驟 5: 完成驗證 -->
+            <div id="step-5" class="step-container text-center">
+                <div class="mb-6 text-green-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-24 h-24 mx-auto">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold bear-theme-text mb-4">申請已完成送出！</h2>
+                <p class="text-gray-600 mb-8">
+                    感謝您的申請，您的開戶審核編號為：<br>
+                    <span class="font-mono font-bold text-[#8b4513] text-lg">BR-888202401</span>
+                </p>
+                <div class="bg-gray-50 p-4 rounded-xl mb-8">
+                    <p class="text-sm text-gray-500">審核結果將於 1-3 個工作天內透過簡訊通知您。</p>
+                </div>
+                <button onclick="location.reload()" class="w-full py-4 rounded-xl border-2 border-[#8b4513] bear-theme-text font-bold">
+                    返回首頁
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 底部裝飾 -->
+        <div class="p-4 bg-gray-50 text-center text-[10px] text-gray-400">
+            © 2024 Brown Bank Digital Services. All rights reserved.
+        </div>
+    </div>
+
+    <!-- 自定義訊息盒 -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full text-sm opacity-0 transition-opacity pointer-events-none">
+        請同意條款後繼續
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+        }
+
+        function nextStep(step) {
+            // 隱藏當前步驟
+            document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+            // 顯示新步驟
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            // 更新進度條
+            const progressInner = document.getElementById('progress-inner');
+            progressInner.style.width = (step * 20) + '%';
+            
+            currentStep = step;
+        }
+
+        function checkAgreement() {
+            if (document.getElementById('agree').checked) {
+                nextStep(3);
+            } else {
+                showToast('請先勾選同意隱私權條款');
+            }
+        }
+
+        function validateInfo() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            
+            if (!name || !phone) {
+                showToast('請完整填寫姓名與電話');
+                return;
+            }
+            nextStep(4);
+        }
+
+        function startVideoVerify() {
+            // 在實際環境中，開啟 LINE LIFF
+            const liffUrl = 'https://liff.line.me/2008742005-3DHkWzkg';
+            
+            // 模擬開啟連結
+            window.open(liffUrl, '_blank');
+            
+            // 模擬驗證完成 (實際應用應由後端回調或 LIFF 關閉後觸發)
+            showToast('導向驗證中...');
+            
+            // 延遲一段時間後自動跳轉到完成頁面，用於展示效果
+            setTimeout(() => {
+                nextStep(5);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
